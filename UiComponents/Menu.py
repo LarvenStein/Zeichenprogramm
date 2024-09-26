@@ -20,8 +20,8 @@ class Menu:
             ["Zurücksetzen", self.unimplemented_option]
         ])
         self.add_menu(menubar, "Hilfe", [
-            ["Author", self.open_website],
-            ["GitHub", self.open_github],
+            ["Author", lambda:webbrowser.open("https://eike.in")],
+            ["GitHub", lambda:webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm")],
         ])
 
         app.config(menu=menubar)
@@ -33,14 +33,6 @@ class Menu:
             menu.add_command(label=command[0], command=command[1])
 
         menubar.add_cascade(label=label, menu=menu)
-
-    @staticmethod
-    def open_website():
-        webbrowser.open("https://eike.in")
-
-    @staticmethod
-    def open_github():
-        webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm")
 
     @staticmethod
     def unimplemented_option():
