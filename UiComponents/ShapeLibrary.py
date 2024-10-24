@@ -22,7 +22,8 @@ class ShapeLibrary:
             "rectangle": "⬜",
             "oval": "⭕",
             "diamond": "◆",
-            "line": "➖"
+            "line": "➖",
+            "polygon": ""
         }
 
         self.colorpicker_btn = tk.Button(app.side_menu, width=10, bg="black", activebackground="black", command=self.choose_color)

@@ -13,6 +13,7 @@ class DrawingArea(tk.Canvas):
         self.bind("<ButtonPress-1>", self.drawer.on_press)
         self.bind("<B1-Motion>", self.drawer.on_drag)
         self.bind("<ButtonRelease-1>", self.drawer.on_release)
+        self.bind("<ButtonPress-3>", self.drawer.finish_polygon)
 
         self.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.master = app
