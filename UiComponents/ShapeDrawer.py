@@ -9,9 +9,13 @@ class ShapeDrawer:
         self.start_y = None
         self.current_shape = None
         self.shape_type = None
+        self.color = "black"
 
     def set_shape_type(self, shape_type):
         self.shape_type = shape_type
+
+    def set_color(self, color):
+        self.color = color[1]
 
     def on_press(self, event):
         self.start_x = event.x
@@ -31,7 +35,7 @@ class ShapeDrawer:
 
             # draw shape object
             self.current_shape = self.drawing_area.draw_shape(
-                Shape(self.shape_type, self.start_x, self.start_y, width, height))
+                Shape(self.shape_type, self.start_x, self.start_y, width, height, self.color))
 
     def on_release(self, event):
         if self.start_x is not None and self.start_y is not None:
@@ -51,7 +55,7 @@ class ShapeDrawer:
                 height = event.y
 
             # Call add_shape method of DrawingArea
-            self.drawing_area.add_shape(self.shape_type, x, y, width, height)
+            self.drawing_area.add_shape(self.shape_type, x, y, width, height, self.color)
 
             # Reset for the next shape
             self.start_x = None
