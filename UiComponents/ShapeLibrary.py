@@ -16,11 +16,10 @@ class ShapeLibrary:
         shapes = {
             "rectangle": "⬜",
             "oval": "⭕",
-            "oval_with_underline": "Ⓤ",
             "diamond": "◆",
             "line": "➖"
         }
         for shape, symbol in shapes.items():
             btn = tk.Button(app.side_menu, text=symbol, font=("Arial", 20),
-                            command=lambda s=shape: DrawingArea.add_shape(self.drawing_area, s, 0, 0))
+                            command=lambda s=shape: DrawingArea.set_shape_type(self.drawing_area, s))
             btn.pack(pady=5)

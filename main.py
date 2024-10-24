@@ -8,7 +8,7 @@ from tkinter import ttk
 class InitApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("300x200")
+        self.geometry("900x900")
         self.title("Zeichenprogramm")
         Menu(self)
 
