@@ -23,6 +23,7 @@ class ShapeLibrary:
             "oval": "⭕",
             "line": "➖",
             "polygon": "",
+            "flood_fill": ""
         }
 
         self.colorpicker_btn = tk.Button(app.side_menu, width=10, bg="black", activebackground="black", command=self.choose_color)

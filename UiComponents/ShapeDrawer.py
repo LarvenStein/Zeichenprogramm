@@ -23,7 +23,7 @@ class ShapeDrawer:
         self.start_y = event.y
 
         if self.shape_type == "flood_fill":
-            self.drawing_area.flood_fill(event.x, event.y, self.color)
+            self.drawing_area.flood_fill(event, self.color)
 
         if self.shape_type == "polygon":
             self.polygon_points.append(event.x)
@@ -46,6 +46,9 @@ class ShapeDrawer:
                 Shape(self.shape_type, self.start_x, self.start_y, width, height, self.color))
 
     def finish_polygon(self, event):
+        if self.shape_type != "polygon":
+            return
+
         polygon = Polygon(self.polygon_points, self.color, "white")
 
         self.drawing_area.shapes.append(polygon)
