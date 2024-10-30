@@ -5,7 +5,8 @@ import os
 import tarfile
 from tkinter.filedialog import asksaveasfile
 from tkinter.filedialog import askopenfilename
-
+from Objects.Shape import Shape
+from Objects.Polygon import Polygon
 
 class Menu:
 
@@ -16,7 +17,7 @@ class Menu:
         self.add_menu(menubar, "Datei", [
             ["Neu", self.unimplemented_option],
             ["Speichern", self.save],
-            ["Laden", self.unimplemented_option],
+            ["Laden", self.open],
             ["Exit", exit]
         ])
         self.add_menu(menubar, "Bearbeiten", [
@@ -39,6 +40,34 @@ class Menu:
             menu.add_command(label=command[0], command=command[1])
 
         menubar.add_cascade(label=label, menu=menu)
+
+    def open(self):
+        f = askopenfilename(defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")])
+        with tarfile.open(f, "r") as tar:
+            tar.extractall()
+
+        json_filename = "shapes.json"
+        with open(json_filename, 'r') as json_file:
+            json_data = json_file.read()
+
+        shapes_list = json.loads(json_data)
+        self.app.drawing_area.shapes = []
+        for shape_data in shapes_list:
+            if shape_data["shape_type"] == "polygon":
+                shape = Polygon(shape_data["points"], shape_data["color"], shape_data["fill"])
+            else:
+                shape = Shape(
+                    shape_data["shape_type"],
+                    shape_data["x"],
+                    shape_data["y"],
+                    shape_data["width"],
+                    shape_data["height"],
+                    shape_data["color"]
+                )
+                shape.fill = shape_data["fill"]
+            self.app.drawing_area.shapes.append(shape)
+        self.app.drawing_area.draw_shapes()
+        os.remove(json_filename)
 
     def save(self):
         f = asksaveasfile(initialfile='Untitled.ezf',
