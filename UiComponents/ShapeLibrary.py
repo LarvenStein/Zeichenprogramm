@@ -19,17 +19,17 @@ class ShapeLibrary:
 
     def create_side_menu(self, app):
         shapes = {
-            "rectangle": "⬜",
-            "oval": "⭕",
-            "line": "➖",
-            "polygon": "",
-            "flood_fill": ""
+            "rectangle": "Rectangle",
+            "oval": "Oval",
+            "line": "Line",
+            "polygon": "Polygon",
+            "flood_fill": "Fill"
         }
 
         self.colorpicker_btn = tk.Button(app.side_menu, width=10, bg="black", activebackground="black", command=self.choose_color)
         self.colorpicker_btn.pack()
 
         for shape, symbol in shapes.items():
-            btn = tk.Button(app.side_menu, text=shape, font=("Arial", 12), width=10,
+            btn = tk.Button(app.side_menu, text=symbol, font=("Arial", 12), width=10,
                             command=lambda s=shape: DrawingArea.set_shape_type(self.drawing_area, s))
             btn.pack(pady=5)
