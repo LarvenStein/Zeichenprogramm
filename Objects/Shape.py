@@ -7,3 +7,4 @@ class Shape:
         self.height = height
         self.color = color
 
+

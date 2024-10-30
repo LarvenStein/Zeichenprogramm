@@ -21,9 +21,8 @@ class ShapeLibrary:
         shapes = {
             "rectangle": "⬜",
             "oval": "⭕",
-            "diamond": "◆",
             "line": "➖",
-            "polygon": ""
+            "polygon": "",
         }
 
         self.colorpicker_btn = tk.Button(app.side_menu, width=10, bg="black", activebackground="black", command=self.choose_color)

@@ -1,7 +1,7 @@
 import tkinter as tk
 from Objects.Shape import Shape
+from Objects.Polygon import Polygon
 from UiComponents.ShapeDrawer import ShapeDrawer
-
 
 class DrawingArea(tk.Canvas):
     def __init__(self, app, master, **kwargs):
@@ -14,7 +14,6 @@ class DrawingArea(tk.Canvas):
         self.bind("<B1-Motion>", self.drawer.on_drag)
         self.bind("<ButtonRelease-1>", self.drawer.on_release)
         self.bind("<ButtonPress-3>", self.drawer.finish_polygon)
-
         self.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.master = app
 
@@ -29,6 +28,7 @@ class DrawingArea(tk.Canvas):
         self.shapes.append(shape)
         self.draw_shapes()
 
+
     def draw_shape(self, shape):
         if shape.shape_type == "rectangle":
             return self.create_rectangle(shape.x, shape.y, shape.x + shape.width, shape.y + shape.height,
@@ -38,6 +38,8 @@ class DrawingArea(tk.Canvas):
                              outline=shape.color)
         elif shape.shape_type == "line":
             return self.create_line(shape.x, shape.y, shape.width, shape.height, fill=shape.color)
+        elif shape.shape_type == "polygon":
+            return self.create_polygon(shape.points, outline=shape.color, fill=shape.fill)
 
         elif shape.shape_type == "diamond":
             return self.create_polygon(shape.x + shape.width / 2, shape.y,
@@ -48,5 +50,6 @@ class DrawingArea(tk.Canvas):
 
     def draw_shapes(self):
         self.delete("all")
+        print(self.shapes)
         for shape in self.shapes:
             self.draw_shape(shape)

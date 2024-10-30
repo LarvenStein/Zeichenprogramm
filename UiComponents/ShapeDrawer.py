@@ -1,5 +1,5 @@
 from Objects.Shape import Shape
-
+from Objects.Polygon import Polygon
 
 class ShapeDrawer:
     def __init__(self, canvas, drawing_area):
@@ -22,9 +22,12 @@ class ShapeDrawer:
         self.start_x = event.x
         self.start_y = event.y
 
-        if self.shape_type == "polygon":
-            self.polygon_points.append([event.x, event.y])
+        if self.shape_type == "flood_fill":
+            self.drawing_area.flood_fill(event.x, event.y, self.color)
 
+        if self.shape_type == "polygon":
+            self.polygon_points.append(event.x)
+            self.polygon_points.append(event.y)
 
     def on_drag(self, event):
         if self.start_x is not None and self.start_y is not None:
@@ -43,23 +46,19 @@ class ShapeDrawer:
                 Shape(self.shape_type, self.start_x, self.start_y, width, height, self.color))
 
     def finish_polygon(self, event):
-        start_x = self.polygon_points[0][0]
-        start_y = self.polygon_points[0][1]
-        tmp_point = None
-        counter = 0
-        for point in self.polygon_points:
-            tmp_point = point
-            if counter < len(self.polygon_points) -1:
-                next_point = self.polygon_points[counter + 1]
-            self.drawing_area.add_shape("line", point[0], point[1], next_point[0], next_point[1], self.color)
-            counter += 1
+        polygon = Polygon(self.polygon_points, self.color, "white")
 
-        self.drawing_area.add_shape("line", start_x, start_y, next_point[0], next_point[1], self.color)
+        self.drawing_area.shapes.append(polygon)
+        self.drawing_area.draw_shapes()
+
         self.polygon_points = []
         self.shape_type = None
 
     def on_release(self, event):
         if self.start_x is not None and self.start_y is not None:
+            if self.shape_type == "polygon" or self.shape_type == None:
+                return
+
             end_x = event.x
             end_y = event.y
 
