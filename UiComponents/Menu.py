@@ -5,6 +5,8 @@ import os
 import tarfile
 from tkinter.filedialog import asksaveasfile
 from tkinter.filedialog import askopenfilename
+from tkinter.messagebox import askyesno
+
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
 
@@ -24,7 +26,7 @@ class Menu:
             ["Ausschneiden", self.unimplemented_option],
             ["Kopieren", self.unimplemented_option],
             ["Einfügen", self.unimplemented_option],
-            ["Zurücksetzen", self.unimplemented_option]
+            ["Zurücksetzen", self.reset]
         ])
         self.add_menu(menubar, "Hilfe", [
             ["Author", lambda:webbrowser.open("https://eike.in")],
@@ -40,6 +42,11 @@ class Menu:
             menu.add_command(label=command[0], command=command[1])
 
         menubar.add_cascade(label=label, menu=menu)
+
+    def reset(self):
+        if(askyesno("Canvas wirklich leeren?", "Möchten Sie wirklich den Canvas leeren? Dies kann nicht rückgängig gemacht werden")):
+            self.app.drawing_area.shapes = []
+            self.app.drawing_area.draw_shapes()
 
     def open(self):
         f = askopenfilename(defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")])
