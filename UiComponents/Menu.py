@@ -16,65 +16,57 @@ class Menu:
     def __init__(self, app):
         menubar = tk.Menu(app)
         self.app = app
+        self.app.bind("<Control-c>", self.copy)
+        self.app.bind("<Control-x>", self.cut)
+        self.app.bind("<Control-v>", self.paste)
 
         self.add_menu(menubar, "Datei", [
-            ["Neu", self.unimplemented_option],
-            ["Speichern", self.save],
-            ["Laden", self.open],
-            ["Exit", exit]
+            ["Neu", self.unimplemented_option, None],
+            ["Speichern", self.save, None],
+            ["Laden", self.open, None],
+            ["Exit", exit, None]
         ])
         self.add_menu(menubar, "Bearbeiten", [
-            ["Ausschneiden", self.cut],
-            ["Kopieren", self.copy],
-            ["Einfügen", self.unimplemented_option],
-            ["Zurücksetzen", self.reset]
+            ["Ausschneiden", self.cut, "Srg+X"],
+            ["Kopieren", self.copy, "Strg+C"],
+            ["Einfügen", self.paste, "Strg+V"],
+            ["Zurücksetzen", self.reset, None]
         ])
         self.add_menu(menubar, "Hilfe", [
-            ["Author", lambda: webbrowser.open("https://eike.in")],
-            ["GitHub", lambda: webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm")],
+            ["Author", lambda: webbrowser.open("https://eike.in"), None],
+            ["GitHub", lambda: webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm"), None],
         ])
 
         app.config(menu=menubar)
+
+        self.pasted_shapes = []
 
     @staticmethod
     def add_menu(menubar, label: str, commands):
         menu = tk.Menu(menubar, tearoff=0)
         for command in commands:
-            menu.add_command(label=command[0], command=command[1])
+            menu.add_command(label=command[0], command=command[1], accelerator=command[2])
 
         menubar.add_cascade(label=label, menu=menu)
 
-    def cut(self):
+    def cut(self, event):
         self.copy()
         self.app.drawing_area.shapes = [obj for obj in self.app.drawing_area.shapes if obj not in self.app.drawing_area.selected_shapes]
         self.app.drawing_area.draw_shapes()
 
-    def copy(self):
-        shapes_dict = []
-        for shape in self.app.drawing_area.selected_shapes:
-            if shape.shape_type == "polygon":
-                shape_data = {
-                    "shape_type": shape.shape_type,
-                    "points": shape.points,
-                    "color": shape.color,
-                    "fill": shape.fill
-                }
-            else:
-                shape_data = {
-                    "shape_type": shape.shape_type,
-                    "x": shape.x,
-                    "y": shape.y,
-                    "width": shape.width,
-                    "height": shape.height,
-                    "color": shape.color,
-                    "fill": shape.fill
-                }
-            shapes_dict.append(shape_data)
-
+    def copy(self, event):
         self.app.clipboard_clear()
-        self.app.clipboard_append(json.dumps(shapes_dict))
+        self.app.clipboard_append(self.objects_to_json(self.app.drawing_area.selected_shapes))
         self.app.update()
 
+    def paste(self, event):
+        json_data = self.app.clipboard_get()
+        self.pasted_shapes.append(json_data)
+        offset = self.pasted_shapes.count(json_data) * 10
+
+        pasted_shapes = self.json_to_objects(json_data, offset=offset)
+        self.app.drawing_area.shapes += pasted_shapes
+        self.app.drawing_area.draw_shapes()
 
     def reset(self):
         if (askyesno("Canvas wirklich leeren?",
@@ -91,30 +83,34 @@ class Menu:
         with open(json_filename, 'r') as json_file:
             json_data = json_file.read()
 
-        shapes_list = json.loads(json_data)
-        self.app.drawing_area.shapes = []
-        for shape_data in shapes_list:
-            if shape_data["shape_type"] == "polygon":
-                shape = Polygon(shape_data["points"], shape_data["color"], shape_data["fill"])
-            else:
-                shape = Shape(
-                    shape_data["shape_type"],
-                    shape_data["x"],
-                    shape_data["y"],
-                    shape_data["width"],
-                    shape_data["height"],
-                    shape_data["color"]
-                )
-                shape.fill = shape_data["fill"]
-            self.app.drawing_area.shapes.append(shape)
+        self.app.drawing_area.shapes = self.json_to_objects(json_data)
+
         self.app.drawing_area.draw_shapes()
         os.remove(json_filename)
 
     def save(self):
         f = asksaveasfile(initialfile='Untitled.ezf',
                           defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")])
+
+        json_data = self.objects_to_json(self.app.drawing_area.shapes)
+
+        json_filename = "shapes.json"
+        with open(json_filename, 'w') as json_file:
+            json_file.write(json_data)
+
+        with tarfile.open(f.name, "w") as tar:
+            tar.add(json_filename, arcname=os.path.basename(json_filename))
+
+        os.remove(json_filename)  # Clean up the temporary JSON file
+
+    @staticmethod
+    def unimplemented_option():
+        print("unimplemented")
+
+    @staticmethod
+    def objects_to_json(objects):
         shapes_dict = []
-        for shape in self.app.drawing_area.shapes:
+        for shape in objects:
             if shape.shape_type == "polygon":
                 shape_data = {
                     "shape_type": shape.shape_type,
@@ -134,17 +130,31 @@ class Menu:
                 }
             shapes_dict.append(shape_data)
 
-        json_data = json.dumps(shapes_dict)
-
-        json_filename = "shapes.json"
-        with open(json_filename, 'w') as json_file:
-            json_file.write(json_data)
-
-        with tarfile.open(f.name, "w") as tar:
-            tar.add(json_filename, arcname=os.path.basename(json_filename))
-
-        os.remove(json_filename)  # Clean up the temporary JSON file
+        return json.dumps(shapes_dict)
 
     @staticmethod
-    def unimplemented_option():
-        print("unimplemented")
+    def json_to_objects(json_data, offset=0):
+        shapes = []
+        shapes_list = json.loads(json_data)
+        for shape_data in shapes_list:
+            if shape_data["shape_type"] == "polygon":
+                points = []
+                for point in shape_data["points"]:
+                    point += offset
+                    points.append(point)
+
+                shape = Polygon(points, shape_data["color"], shape_data["fill"])
+            else:
+                shape = Shape(
+                    shape_data["shape_type"],
+                    shape_data["x"] + offset,
+                    shape_data["y"] + offset,
+                    shape_data["width"],
+                    shape_data["height"],
+                    shape_data["color"]
+                )
+            shape.fill = shape_data["fill"]
+            shapes.append(shape)
+
+        return shapes
+

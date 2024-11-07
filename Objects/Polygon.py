@@ -4,3 +4,4 @@ class Polygon:
         self.points = points
         self.color = color
         self.fill = fill
+        self.selected = False

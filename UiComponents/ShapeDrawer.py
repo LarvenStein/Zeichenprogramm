@@ -56,7 +56,7 @@ class ShapeDrawer:
         # Ab hier die funktion  bitte nicht weiterlesen
         for shape in self.drawing_area.shapes:
             if shape.shape_type == 'polygon':
-                if self.is_point_in_polygon(event.x, event.y, shape.points):
+                if self.drawing_area.is_point_in_polygon(event.x, event.y, shape.points):
                     shape.selected = True
                     selected_shapes.append(shape)
                     self.drawing_area.draw_shapes()
