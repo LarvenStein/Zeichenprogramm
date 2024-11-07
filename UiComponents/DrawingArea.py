@@ -16,6 +16,65 @@ class DrawingArea(tk.Canvas):
         self.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.master = app
 
+    def select_colliding_shapes(self):
+        rect = self.drawer.current_shape
+        if not rect:
+            print("Error: The current shape is None")
+            return
+
+        selected_shapes = []
+
+        for shape in self.shapes:
+            if self.is_colliding(rect, shape):
+                shape.selected = True
+                selected_shapes.append(shape)
+            else:
+                shape.selected = False
+
+        self.draw_shapes()
+        self.selected_shapes = selected_shapes
+
+    def is_colliding(self, rect, shape):
+        if not rect:
+            return False
+
+        if shape.shape_type == 'polygon':
+            # Check if any point of the polygon is inside the rectangle
+            for i in range(0, len(shape.points), 2):
+                if rect.x <= shape.points[i] <= rect.x + rect.width and rect.y <= shape.points[
+                    i + 1] <= rect.y + rect.height:
+                    return True
+            # Check if any edge of the rectangle intersects with any edge of the polygon
+            rect_edges = [
+                ((rect.x, rect.y), (rect.x + rect.width, rect.y)),
+                ((rect.x + rect.width, rect.y), (rect.x + rect.width, rect.y + rect.height)),
+                ((rect.x + rect.width, rect.y + rect.height), (rect.x, rect.y + rect.height)),
+                ((rect.x, rect.y + rect.height), (rect.x, rect.y))
+            ]
+            for i in range(0, len(shape.points), 2):
+                polygon_edge = (
+                    (shape.points[i], shape.points[i + 1]),
+                    (shape.points[(i + 2) % len(shape.points)], shape.points[(i + 3) % len(shape.points)])
+                )
+                for rect_edge in rect_edges:
+                    if self.edges_intersect(rect_edge, polygon_edge):
+                        return True
+        else:
+            # Check for collision with other shapes
+            return not (rect.x > shape.x + shape.width or
+                        rect.x + rect.width < shape.x or
+                        rect.y > shape.y + shape.height or
+                        rect.y + rect.height < shape.y)
+        return False
+
+    def edges_intersect(self, edge1, edge2):
+        def ccw(A, B, C):
+            return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+
+        A, B = edge1
+        C, D = edge2
+        return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
     def set_shape_type(self, shape_type):
         self.drawer.set_shape_type(shape_type)
 

@@ -47,9 +47,19 @@ class ShapeDrawer:
                 width = event.x
                 height = event.y
 
+            shape_type = self.shape_type
+            color = self.color
+
+            if self.shape_type is None:
+                shape_type = "rectangle"
+                color = "blue"
+                self.current_shape = Shape(shape_type, self.start_x, self.start_y, width, height, color)
+                self.drawing_area.select_colliding_shapes()
+
             # draw shape object
             self.current_shape = self.drawing_area.draw_shape(
-                Shape(self.shape_type, self.start_x, self.start_y, width, height, self.color))
+                Shape(shape_type, self.start_x, self.start_y, width, height, color))
+
 
     def select_shape(self, event):
         selected_shapes = []
@@ -76,7 +86,6 @@ class ShapeDrawer:
 
             self.drawing_area.draw_shapes()
             self.drawing_area.selected_shapes = selected_shapes
-            print(selected_shapes)
 
 
     def finish_polygon(self, event):
@@ -92,6 +101,10 @@ class ShapeDrawer:
         self.shape_type = None
 
     def on_release(self, event):
+        if self.shape_type is None:
+
+            self.canvas.delete(self.current_shape)
+
         if self.start_x is not None and self.start_y is not None:
             if self.shape_type == "polygon" or self.shape_type == None:
                 return
@@ -120,3 +133,4 @@ class ShapeDrawer:
             self.current_shape = None
             if self.shape_type != "polygon":
                 self.shape_type = None
+
