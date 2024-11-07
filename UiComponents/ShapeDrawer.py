@@ -1,6 +1,7 @@
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
 
+
 class ShapeDrawer:
     def __init__(self, canvas, drawing_area):
         self.canvas = canvas
@@ -24,10 +25,15 @@ class ShapeDrawer:
 
         if self.shape_type == "flood_fill":
             self.drawing_area.flood_fill(event, self.color)
+            return
 
         if self.shape_type == "polygon":
             self.polygon_points.append(event.x)
             self.polygon_points.append(event.y)
+            return
+
+        if self.shape_type is None:
+            self.select_shape(event)
 
     def on_drag(self, event):
         if self.start_x is not None and self.start_y is not None:
@@ -44,6 +50,34 @@ class ShapeDrawer:
             # draw shape object
             self.current_shape = self.drawing_area.draw_shape(
                 Shape(self.shape_type, self.start_x, self.start_y, width, height, self.color))
+
+    def select_shape(self, event):
+        selected_shapes = []
+        # Ab hier die funktion  bitte nicht weiterlesen
+        for shape in self.drawing_area.shapes:
+            if shape.shape_type == 'polygon':
+                if self.is_point_in_polygon(event.x, event.y, shape.points):
+                    shape.selected = True
+                    selected_shapes.append(shape)
+                    self.drawing_area.draw_shapes()
+                    self.drawing_area.selected_shapes = selected_shapes
+                    break
+                else:
+                    shape.selected = False
+            else:
+                if (shape.x <= event.x <= shape.x + shape.width) and (shape.y <= event.y <= shape.y + shape.height):
+                    shape.selected = True
+                    selected_shapes.append(shape)
+                    self.drawing_area.draw_shapes()
+                    self.drawing_area.selected_shapes = selected_shapes
+                    break
+                else:
+                    shape.selected = False
+
+            self.drawing_area.draw_shapes()
+            self.drawing_area.selected_shapes = selected_shapes
+            print(selected_shapes)
+
 
     def finish_polygon(self, event):
         if self.shape_type != "polygon":

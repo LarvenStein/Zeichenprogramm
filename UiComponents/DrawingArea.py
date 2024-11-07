@@ -6,7 +6,7 @@ class DrawingArea(tk.Canvas):
     def __init__(self, app, master, **kwargs):
         super().__init__(master, **kwargs)
         self.shapes = []
-
+        self.selected_shapes = []
         self.drawer = ShapeDrawer(canvas=self, drawing_area=self)
 
         self.bind("<ButtonPress-1>", self.drawer.on_press)
@@ -42,26 +42,31 @@ class DrawingArea(tk.Canvas):
 
 
     def draw_shape(self, shape):
+        color = shape.color
+        if shape.selected:
+            color = "red"
+
+
         if shape.shape_type == "rectangle":
             return self.create_rectangle(shape.x, shape.y, shape.x + shape.width, shape.y + shape.height,
-                                  outline=shape.color, fill=shape.fill)
+                                  outline=color, fill=shape.fill)
 
         elif shape.shape_type == "oval":
             return self.create_oval(shape.x, shape.y, shape.x + shape.width, shape.y + shape.height,
-                             outline=shape.color, fill=shape.fill)
+                             outline=color, fill=shape.fill)
 
         elif shape.shape_type == "line":
-            return self.create_line(shape.x, shape.y, shape.width, shape.height, fill=shape.color)
+            return self.create_line(shape.x, shape.y, shape.width, shape.height, fill=color)
 
         elif shape.shape_type == "polygon":
-            return self.create_polygon(shape.points, outline=shape.color, fill=shape.fill)
+            return self.create_polygon(shape.points, outline=color, fill=shape.fill)
 
         elif shape.shape_type == "diamond":
             return self.create_polygon(shape.x + shape.width / 2, shape.y,
                                 shape.x + shape.width, shape.y + shape.height / 2,
                                 shape.x + shape.width / 2, shape.y + shape.height,
                                 shape.x, shape.y + shape.height / 2,
-                                outline=shape.color, fill=shape.fill)
+                                outline=color, fill=shape.fill)
 
     def is_point_in_polygon(self, x, y, points):
         n = len(points) // 2  # Number of points

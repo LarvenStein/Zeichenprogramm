@@ -10,6 +10,7 @@ from tkinter.messagebox import askyesno
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
 
+
 class Menu:
 
     def __init__(self, app):
@@ -23,14 +24,14 @@ class Menu:
             ["Exit", exit]
         ])
         self.add_menu(menubar, "Bearbeiten", [
-            ["Ausschneiden", self.unimplemented_option],
-            ["Kopieren", self.unimplemented_option],
+            ["Ausschneiden", self.cut],
+            ["Kopieren", self.copy],
             ["Einfügen", self.unimplemented_option],
             ["Zurücksetzen", self.reset]
         ])
         self.add_menu(menubar, "Hilfe", [
-            ["Author", lambda:webbrowser.open("https://eike.in")],
-            ["GitHub", lambda:webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm")],
+            ["Author", lambda: webbrowser.open("https://eike.in")],
+            ["GitHub", lambda: webbrowser.open("https://github.com/LarvenStein/Zeichenprogramm")],
         ])
 
         app.config(menu=menubar)
@@ -43,8 +44,41 @@ class Menu:
 
         menubar.add_cascade(label=label, menu=menu)
 
+    def cut(self):
+        self.copy()
+        self.app.drawing_area.shapes = [obj for obj in self.app.drawing_area.shapes if obj not in self.app.drawing_area.selected_shapes]
+        self.app.drawing_area.draw_shapes()
+
+    def copy(self):
+        shapes_dict = []
+        for shape in self.app.drawing_area.selected_shapes:
+            if shape.shape_type == "polygon":
+                shape_data = {
+                    "shape_type": shape.shape_type,
+                    "points": shape.points,
+                    "color": shape.color,
+                    "fill": shape.fill
+                }
+            else:
+                shape_data = {
+                    "shape_type": shape.shape_type,
+                    "x": shape.x,
+                    "y": shape.y,
+                    "width": shape.width,
+                    "height": shape.height,
+                    "color": shape.color,
+                    "fill": shape.fill
+                }
+            shapes_dict.append(shape_data)
+
+        self.app.clipboard_clear()
+        self.app.clipboard_append(json.dumps(shapes_dict))
+        self.app.update()
+
+
     def reset(self):
-        if(askyesno("Canvas wirklich leeren?", "Möchten Sie wirklich den Canvas leeren? Dies kann nicht rückgängig gemacht werden")):
+        if (askyesno("Canvas wirklich leeren?",
+                     "Möchten Sie wirklich den Canvas leeren? Dies kann nicht rückgängig gemacht werden")):
             self.app.drawing_area.shapes = []
             self.app.drawing_area.draw_shapes()
 
