@@ -19,10 +19,11 @@ class Menu:
         self.app.bind("<Control-c>", self.copy)
         self.app.bind("<Control-x>", self.cut)
         self.app.bind("<Control-v>", self.paste)
+        self.app.bind("<Control-s>", self.save)
 
         self.add_menu(menubar, "Datei", [
             ["Neu", self.unimplemented_option, None],
-            ["Speichern", self.save, None],
+            ["Speichern", self.save, "Srg+S"],
             ["Laden", self.open, None],
             ["Exit", exit, None]
         ])
@@ -40,6 +41,7 @@ class Menu:
         app.config(menu=menubar)
 
         self.pasted_shapes = []
+        self.saved_path = None
 
     @staticmethod
     def add_menu(menubar, label: str, commands):
@@ -88,9 +90,11 @@ class Menu:
         self.app.drawing_area.draw_shapes()
         os.remove(json_filename)
 
-    def save(self):
-        f = asksaveasfile(initialfile='Untitled.ezf',
-                          defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")])
+    def save(self, event):
+        file_name = self.saved_path
+        if self.saved_path is None:
+            file_name = asksaveasfile(initialfile='Untitled.ezf',
+                              defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")]).name
 
         json_data = self.objects_to_json(self.app.drawing_area.shapes)
 
@@ -98,10 +102,12 @@ class Menu:
         with open(json_filename, 'w') as json_file:
             json_file.write(json_data)
 
-        with tarfile.open(f.name, "w") as tar:
+        with tarfile.open(file_name, "w") as tar:
             tar.add(json_filename, arcname=os.path.basename(json_filename))
 
         os.remove(json_filename)  # Clean up the temporary JSON file
+
+        self.saved_path = file_name
 
     @staticmethod
     def unimplemented_option():
