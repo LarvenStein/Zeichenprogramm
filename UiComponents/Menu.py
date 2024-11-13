@@ -6,7 +6,6 @@ import tarfile
 from tkinter.filedialog import asksaveasfile
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import askyesno
-
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
 
@@ -20,18 +19,21 @@ class Menu:
         self.app.bind("<Control-x>", self.cut)
         self.app.bind("<Control-v>", self.paste)
         self.app.bind("<Control-s>", self.save)
+        self.app.bind("<Control-n>", self.reset)
+        self.app.bind("<Control-o>", self.open)
+
 
         self.add_menu(menubar, "Datei", [
-            ["Neu", self.unimplemented_option, None],
+            ["Neu", self.reset, "Strg+N"],
             ["Speichern", self.save, "Srg+S"],
-            ["Laden", self.open, None],
+            ["Laden", self.open, "Strg+O"],
             ["Exit", exit, None]
         ])
         self.add_menu(menubar, "Bearbeiten", [
             ["Ausschneiden", self.cut, "Srg+X"],
             ["Kopieren", self.copy, "Strg+C"],
             ["Einfügen", self.paste, "Strg+V"],
-            ["Zurücksetzen", self.reset, None]
+            ["Zurücksetzen", self.reset, "Strg+N"]
         ])
         self.add_menu(menubar, "Hilfe", [
             ["Author", lambda: webbrowser.open("https://eike.in"), None],
@@ -42,6 +44,7 @@ class Menu:
 
         self.pasted_shapes = []
         self.saved_path = None
+
 
     @staticmethod
     def add_menu(menubar, label: str, commands):
@@ -70,13 +73,13 @@ class Menu:
         self.app.drawing_area.shapes += pasted_shapes
         self.app.drawing_area.draw_shapes()
 
-    def reset(self):
+    def reset(self, event=None):
         if (askyesno("Canvas wirklich leeren?",
                      "Möchten Sie wirklich den Canvas leeren? Dies kann nicht rückgängig gemacht werden")):
             self.app.drawing_area.shapes = []
             self.app.drawing_area.draw_shapes()
 
-    def open(self):
+    def open(self, event=None):
         f = askopenfilename(defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")])
         with tarfile.open(f, "r") as tar:
             tar.extractall()
