@@ -35,8 +35,38 @@ class ShapeDrawer:
         if self.shape_type is None:
             self.select_shape(event)
 
+    def handle_hove(self, event):
+        dx = event.x - self.start_x
+        dy = event.y - self.start_y
+
+        for shape in self.canvas.selected_shapes:
+            if shape.shape_type == "polygon":
+                new_points = []
+                for i in range(0, len(shape.points), 2):
+                    new_points.append(shape.points[i] + dx)
+                    new_points.append(shape.points[i + 1] + dy)
+                shape.points = new_points
+            elif shape.shape_type == "line":
+                # Move both start and end points of the line
+                shape.x += dx
+                shape.y += dy
+                shape.width += dx
+                shape.height += dy
+            else:
+                # For other shapes (rectangles, ovals, etc.)
+                shape.x += dx
+                shape.y += dy
+
+        self.drawing_area.draw_shapes()
+        self.start_x = event.x
+        self.start_y = event.y
+
     def on_drag(self, event):
         if self.start_x is not None and self.start_y is not None:
+            if len(self.canvas.selected_shapes) > 0 and self.shape_type == "move":
+                self.handle_hove(event)
+                return
+
             if self.current_shape:
                 self.canvas.delete(self.current_shape)
 
@@ -59,6 +89,7 @@ class ShapeDrawer:
             # draw shape object
             self.current_shape = self.drawing_area.draw_shape(
                 Shape(shape_type, self.start_x, self.start_y, width, height, color))
+
 
 
     def select_shape(self, event):
@@ -102,7 +133,6 @@ class ShapeDrawer:
 
     def on_release(self, event):
         if self.shape_type is None:
-
             self.canvas.delete(self.current_shape)
 
         if self.start_x is not None and self.start_y is not None:
