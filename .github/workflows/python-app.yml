@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -23,18 +23,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if (Test-Path requirements.txt) { pip install -r requirements.txt }
     - name: Build to EXE
       run: |
-        pyinstaller -–windowed --onefile main.py --name Zeichenprogramm
+        pyinstaller --windowed --onefile main.py --name Zeichenprogramm
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: v${{ github.run_number }}
+        release_name: Release ${{ github.run_number }}
         draft: false
         prerelease: false
     - name: Upload Release Asset
@@ -43,6 +43,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Zeichenprogramm
-        asset_name: Zeichenprogramm
-        asset_content_type: application/octet-stream
+        asset_path: ./dist/Zeichenprogramm.exe
+        asset_name: Zeichenprogramm.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
+
