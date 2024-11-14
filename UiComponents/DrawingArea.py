@@ -15,8 +15,18 @@ class DrawingArea(tk.Canvas):
         self.bind("<B1-Motion>", self.drawer.on_drag)
         self.bind("<ButtonRelease-1>", self.drawer.on_release)
         self.bind("<ButtonPress-3>", self.drawer.finish_polygon)
+        app.bind("<Control-a>", self.select_all)
+
         self.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.master = app
+
+    def select_all(self, event):
+        print("selected")
+        self.selected_shapes = self.shapes
+        for shape in self.shapes:
+            shape.selected = True
+        self.draw_shapes()
+
 
     def export_canvas_as_image(self, filename):
         # Create an empty image with the same size as the canvas
