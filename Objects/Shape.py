@@ -6,7 +6,7 @@ class Shape:
         self.width = width
         self.height = height
         self.color = color
-        self.fill = ""
+        self.fill = None
         self.selected = False
 
 

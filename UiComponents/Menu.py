@@ -3,11 +3,13 @@ import webbrowser
 import json
 import os
 import tarfile
-from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import asksaveasfile, asksaveasfilename
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import askyesno
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
+from PIL import Image, ImageDraw
+import io
 
 
 class Menu:
@@ -22,10 +24,10 @@ class Menu:
         self.app.bind("<Control-n>", self.reset)
         self.app.bind("<Control-o>", self.open)
 
-
         self.add_menu(menubar, "Datei", [
             ["Neu", self.reset, "Strg+N"],
             ["Speichern", self.save, "Srg+S"],
+            ["Exportieren", self.export, "Strg+E"],
             ["Laden", self.open, "Strg+O"],
             ["Exit", exit, None]
         ])
@@ -45,7 +47,6 @@ class Menu:
         self.pasted_shapes = []
         self.saved_path = None
 
-
     @staticmethod
     def add_menu(menubar, label: str, commands):
         menu = tk.Menu(menubar, tearoff=0)
@@ -56,7 +57,8 @@ class Menu:
 
     def cut(self, event):
         self.copy()
-        self.app.drawing_area.shapes = [obj for obj in self.app.drawing_area.shapes if obj not in self.app.drawing_area.selected_shapes]
+        self.app.drawing_area.shapes = [obj for obj in self.app.drawing_area.shapes if
+                                        obj not in self.app.drawing_area.selected_shapes]
         self.app.drawing_area.draw_shapes()
 
     def copy(self, event):
@@ -97,7 +99,8 @@ class Menu:
         file_name = self.saved_path
         if self.saved_path is None:
             file_name = asksaveasfile(initialfile='Untitled.ezf',
-                              defaultextension=".ezf", filetypes=[("Editable zeichenprogramm file", "*.ezf")]).name
+                                      defaultextension=".ezf",
+                                      filetypes=[("Editable zeichenprogramm file", "*.ezf")]).name
 
         json_data = self.objects_to_json(self.app.drawing_area.shapes)
 
@@ -111,6 +114,17 @@ class Menu:
         os.remove(json_filename)  # Clean up the temporary JSON file
 
         self.saved_path = file_name
+
+    def export(self):
+        filename = asksaveasfilename(defaultextension=".png",
+                                     filetypes=[("JPEG files", "*.jpg *.jpeg"),
+                                                ("Bitmap files", "*.bmp"),
+                                                ("WebP files", "*.webp"),
+                                                ("GIF files", "*.gif"),
+                                                ("PNG files", "*.png")])
+
+        if filename:
+            self.app.drawing_area.export_canvas_as_image(filename)
 
     @staticmethod
     def unimplemented_option():
@@ -166,4 +180,3 @@ class Menu:
             shapes.append(shape)
 
         return shapes
-

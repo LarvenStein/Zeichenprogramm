@@ -1,6 +1,8 @@
 import tkinter as tk
 from Objects.Shape import Shape
 from UiComponents.ShapeDrawer import ShapeDrawer
+from PIL import Image, ImageDraw, ImageOps
+import os
 
 class DrawingArea(tk.Canvas):
     def __init__(self, app, master, **kwargs):
@@ -15,6 +17,40 @@ class DrawingArea(tk.Canvas):
         self.bind("<ButtonPress-3>", self.drawer.finish_polygon)
         self.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.master = app
+
+    def export_canvas_as_image(self, filename):
+        # Create an empty image with the same size as the canvas
+        width = self.winfo_width()
+        height = self.winfo_height()
+        image = Image.new("RGB", (width, height), "white")
+        draw = ImageDraw.Draw(image)
+
+        # Draw all shapes onto the image
+        for shape in self.shapes:
+            if shape.color == '':
+                shape.color = 'black'  # Set a default color if none is specified
+
+            if shape.shape_type == "rectangle":
+                draw.rectangle([shape.x, shape.y, shape.x + shape.width, shape.y + shape.height], outline=shape.color, fill=shape.fill)
+            elif shape.shape_type == "oval":
+                draw.ellipse([shape.x, shape.y, shape.x + shape.width, shape.y + shape.height], outline=shape.color, fill=shape.fill)
+            elif shape.shape_type == "line":
+                draw.line([shape.x, shape.y, shape.width, shape.height], fill=shape.color)
+            elif shape.shape_type == "polygon":
+                draw.polygon(shape.points, outline=shape.color, fill=shape.fill)
+            elif shape.shape_type == "diamond":
+                draw.polygon([shape.x + shape.width / 2, shape.y, shape.x + shape.width, shape.y + shape.height / 2,
+                              shape.x + shape.width / 2, shape.y + shape.height, shape.x, shape.y + shape.height / 2],
+                             outline=shape.color, fill=shape.fill)
+
+        # Save the image
+        file_extension = filename.split('.')[-1].lower()
+        valid_extensions = ["jpg", "jpeg", "bmp", "webp", "gif", "png"]
+
+        if file_extension not in valid_extensions:
+            raise ValueError(f"Unsupported file format: {file_extension}")
+
+        image.save(filename)
 
     def select_colliding_shapes(self):
         rect = self.drawer.current_shape
