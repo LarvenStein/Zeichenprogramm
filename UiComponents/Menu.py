@@ -23,6 +23,7 @@ class Menu:
         self.app.bind("<Control-s>", self.save)
         self.app.bind("<Control-n>", self.reset)
         self.app.bind("<Control-o>", self.open)
+        self.app.bind("<Control-e>", self.export)
 
         self.add_menu(menubar, "Datei", [
             ["Neu", self.reset, "Strg+N"],
@@ -115,7 +116,7 @@ class Menu:
 
         self.saved_path = file_name
 
-    def export(self):
+    def export(self, event):
         filename = asksaveasfilename(defaultextension=".png",
                                      filetypes=[("JPEG files", "*.jpg *.jpeg"),
                                                 ("Bitmap files", "*.bmp"),
