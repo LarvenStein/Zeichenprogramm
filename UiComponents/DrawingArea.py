@@ -112,6 +112,14 @@ class DrawingArea(tk.Canvas):
         return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
     def set_shape_type(self, shape_type):
+        self.master.config(cursor="tcross")
+
+        if shape_type == "polygon":
+            self.master.config(cursor="target")
+
+        if shape_type == "move":
+            self.master.config(cursor="fleur")
+
         self.drawer.set_shape_type(shape_type)
 
     def flood_fill(self, event, color):

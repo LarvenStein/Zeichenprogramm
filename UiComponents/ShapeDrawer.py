@@ -130,8 +130,12 @@ class ShapeDrawer:
 
         self.polygon_points = []
         self.shape_type = None
+        self.drawing_area.master.config(cursor="arrow")
 
     def on_release(self, event):
+        if self.shape_type is not "polygon":
+            self.drawing_area.master.config(cursor="arrow")
+
         if self.shape_type is None:
             self.canvas.delete(self.current_shape)
 
