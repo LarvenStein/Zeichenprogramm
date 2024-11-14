@@ -33,4 +33,4 @@ jobs:
         pyinstaller --onefile main.py
     - name: ls
       run: |
-        ls
+        ls dist/
