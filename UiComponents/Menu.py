@@ -10,9 +10,7 @@ from Objects.Shape import Shape
 from Objects.Polygon import Polygon
 
 
-
 class Menu:
-
     def __init__(self, app):
         menubar = tk.Menu(app)
         self.app = app
@@ -30,7 +28,7 @@ class Menu:
             ["Speichern", self.save, "Srg+S"],
             ["Exportieren", self.export, "Strg+E"],
             ["Laden", self.open, "Strg+O"],
-            ["Exit", exit, None]
+            ["Exit", self.unimplemented_option, "Alt+F4"]
         ])
         self.add_menu(menubar, "Bearbeiten", [
             ["Entfernen", self.delete, "Entf"],
