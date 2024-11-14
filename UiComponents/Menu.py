@@ -24,6 +24,7 @@ class Menu:
         self.app.bind("<Control-n>", self.reset)
         self.app.bind("<Control-o>", self.open)
         self.app.bind("<Control-e>", self.export)
+        self.app.bind("<Delete>", self.delete)
 
         self.add_menu(menubar, "Datei", [
             ["Neu", self.reset, "Strg+N"],
@@ -33,6 +34,7 @@ class Menu:
             ["Exit", exit, None]
         ])
         self.add_menu(menubar, "Bearbeiten", [
+            ["Entfernen", self.delete, "Entf"],
             ["Ausschneiden", self.cut, "Srg+X"],
             ["Kopieren", self.copy, "Strg+C"],
             ["Einfügen", self.paste, "Strg+V"],
@@ -56,18 +58,21 @@ class Menu:
 
         menubar.add_cascade(label=label, menu=menu)
 
-    def cut(self, event):
+    def cut(self, event=None):
         self.copy()
+        self.delete()
+
+    def delete(self, event=None):
         self.app.drawing_area.shapes = [obj for obj in self.app.drawing_area.shapes if
                                         obj not in self.app.drawing_area.selected_shapes]
         self.app.drawing_area.draw_shapes()
 
-    def copy(self, event):
+    def copy(self, event=None):
         self.app.clipboard_clear()
         self.app.clipboard_append(self.objects_to_json(self.app.drawing_area.selected_shapes))
         self.app.update()
 
-    def paste(self, event):
+    def paste(self, event=None):
         json_data = self.app.clipboard_get()
         self.pasted_shapes.append(json_data)
         offset = self.pasted_shapes.count(json_data) * 10
@@ -96,7 +101,7 @@ class Menu:
         self.app.drawing_area.draw_shapes()
         os.remove(json_filename)
 
-    def save(self, event):
+    def save(self, event=None):
         file_name = self.saved_path
         if self.saved_path is None:
             file_name = asksaveasfile(initialfile='Untitled.ezf',
@@ -116,7 +121,7 @@ class Menu:
 
         self.saved_path = file_name
 
-    def export(self, event):
+    def export(self, event=None):
         filename = asksaveasfilename(defaultextension=".png",
                                      filetypes=[("JPEG files", "*.jpg *.jpeg"),
                                                 ("Bitmap files", "*.bmp"),
