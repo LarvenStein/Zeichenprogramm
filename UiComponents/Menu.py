@@ -8,8 +8,7 @@ from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import askyesno
 from Objects.Shape import Shape
 from Objects.Polygon import Polygon
-from PIL import Image, ImageDraw
-import io
+
 
 
 class Menu:
